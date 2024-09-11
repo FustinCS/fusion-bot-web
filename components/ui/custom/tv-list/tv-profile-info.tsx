@@ -1,0 +1,20 @@
+import Image from "next/image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+
+export default function TvProfileInformation() {
+  return (
+    <div className="flex gap-6 m-4 items-end">
+      <div className="w-[64px] lg:w-[128px]">
+        <AspectRatio ratio={1}>
+          <Image
+            src="/unknown.png"
+            alt="Image"
+            className="rounded-md object-center object-cover"
+            fill
+          />
+        </AspectRatio>
+      </div>
+      <h1 className="scroll-m-20 text-4xl font-extrabold lg:text-5xl pb-4">Fustin</h1>
+    </div>
+  );
+}
