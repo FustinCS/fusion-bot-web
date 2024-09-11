@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Show {
+  show_id  Int
+  name     String?   @default("")
+  season   Int       @default(1)
+  episodes Int?      @default(1)
+  image    String?   @default("")
+  Watches  Watches[]
+
+  @@id([show_id, season])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model User {
+  user_id    String    @id @unique
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  Watches    Watches[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Watches {
+  user_id         String
+  show_id         Int
+  current_episode Int       @default(0)
+  date_updated    DateTime? @default(now()) @db.Timestamp(6)
+  current_season  Int       @default(1)
+  Show            Show      @relation(fields: [show_id, current_season], references: [show_id, season], onDelete: NoAction, onUpdate: NoAction)
+  User            User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@id([user_id, show_id, current_season])
+}

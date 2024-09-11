@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Table,
   TableBody,
@@ -14,19 +16,17 @@ import {
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useEffect, useState } from "react";
-import { getWatchingShows } from "@/utils/tv_queries";
 import { Watch } from "@/utils/types";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function CurrentWatchingTable() {
-  const [list, setList] = useState<Watch[]>([]);
+  const {data, error} = useSWR<Watch[]>('/api/database/get-watched-tv', fetcher);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await getWatchingShows();
-      setList(response);
-    };
-    fetchData();
-  }, []);
+  if (!data) return <p>Loading...</p>;
+  
+  if (error) return <p>Error</p>;
 
   return (
     <>
@@ -47,7 +47,7 @@ export default function CurrentWatchingTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {list.map((item, index) =>{
+            {data.map((item, index) =>{
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
@@ -55,7 +55,7 @@ export default function CurrentWatchingTable() {
                       <div className="w-[48px] lg:w-[48px]">
                         <AspectRatio ratio={1}>
                           <Image
-                            src={`/tv/${item.Show.show_id}.jpg`}
+                            src={item.Show.image}
                             alt={item.Show.name || "Unknown"}
                             className="rounded-md object-center object-cover"
                             fill
@@ -74,28 +74,6 @@ export default function CurrentWatchingTable() {
                 </TableRow>
               )
             })}
-          
-            <TableRow>
-              <TableCell className="font-medium">
-                <div className="flex gap-6 m-4 items-center">
-                  <div className="w-[48px] lg:w-[48px]">
-                    <AspectRatio ratio={1}>
-                      <Image
-                        src="/unknown.png"
-                        alt="Image"
-                        className="rounded-md object-center object-cover"
-                        fill
-                      />
-                    </AspectRatio>
-                  </div>
-                  <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                    Test
-                  </h4>
-                </div>
-              </TableCell>
-              <TableCell className="text-center text-lg">12/12</TableCell>
-              <TableCell className="text-center text-lg">TV</TableCell>
-            </TableRow>
           </TableBody>
         </Table>
       </Card>
