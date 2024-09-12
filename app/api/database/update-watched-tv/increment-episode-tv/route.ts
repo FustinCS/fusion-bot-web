@@ -23,7 +23,7 @@ export async function POST(request: Request) {
           },
         },
         data: {
-          current_episode: showData.current_episode - 1,
+          current_episode: showData.current_episode + 1,
           date_updated: new Date().toISOString(), // Automatically update the last updated timestamp
         },
       });
