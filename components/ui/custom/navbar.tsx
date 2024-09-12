@@ -4,10 +4,11 @@ import { ToggleTheme } from "@/components/ui/ToggleTheme";
 import { Button } from "../button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { DiscordLogoIcon } from "@radix-ui/react-icons";
 
 export default function Navbar() {
   const { data: session } = useSession();
-
+  
   return (
     <nav className="my-4">
       <div className="flex justify-center">
@@ -27,9 +28,11 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {!session ? (
               <Button
-                className="bg-[#5865F2] text-white hover:bg-[#6873f1]"
-                onClick={() => signIn("discord")}
+              variant="ghost"
+              className="flex gap-2"
+              onClick={() => signIn("discord")}
               >
+                <DiscordLogoIcon/>
                 Login with Discord
               </Button>
             ) : (

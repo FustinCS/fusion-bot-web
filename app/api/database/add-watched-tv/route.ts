@@ -16,7 +16,6 @@ export async function POST(request: Request) {
 
     // Fetch from the external API (TVMaze)
     const showData = await fetchShowData(showName);
-    console.log(showData);
 
     // Add the show to the database
     await prisma.$transaction(async (tx) => {
@@ -70,7 +69,7 @@ export async function POST(request: Request) {
         user_id: body.userId,
         show_id: showData.show_id,
         current_episode: 0,
-        date_updated: null,
+        date_updated: new Date().toISOString(),
         current_season: 1,
     };
 

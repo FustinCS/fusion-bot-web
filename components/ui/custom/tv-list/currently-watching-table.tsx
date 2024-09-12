@@ -14,8 +14,22 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Watch } from "@/utils/types";
+import { Button } from "../../button";
 
-export default function CurrentWatchingTable({ data }: { data: Watch[] }) {
+export default function CurrentWatchingTable({ data, setData }: { data: Watch[], setData: (newData: Watch[]) => void }) {
+  const handleIncrement = (showId: number) => {
+    const newData = data.map((item) => {
+      if (item.Show.show_id === showId) {
+        return {
+          ...item,
+          current_episode: item.current_episode + 1,
+        };
+      }
+      return item;
+    });
+    setData(newData);
+  }
+
   return (
     <>
       <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight mt-8 p-8">
@@ -35,42 +49,58 @@ export default function CurrentWatchingTable({ data }: { data: Watch[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((item, index) => {
-              return (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    <div className="flex gap-6 m-4 items-center">
-                      <div className="w-[48px] lg:w-[48px]">
-                        <AspectRatio ratio={1}>
-                          <Image
-                            src={item.Show.image}
-                            alt={item.Show.name || "Unknown"}
-                            className="rounded-md object-center object-cover"
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </AspectRatio>
-                      </div>
-                      <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                        {item.Show.name}
-                      </h4>
+            {data.map((item) => (
+              <TableRow key={item.date_updated?.toString()}>
+                <TableCell className="font-medium">
+                  <div className="flex gap-6 m-4 items-center">
+                    <div className="w-[48px] lg:w-[48px]">
+                      <AspectRatio ratio={1}>
+                        <Image
+                          src={item.Show.image}
+                          alt={item.Show.name || "Unknown"}
+                          className="rounded-md object-center object-cover"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </AspectRatio>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-center text-lg">
-                    {item.current_season}
-                  </TableCell>
-                  {item.Show.episodes ? (
-                    <TableCell className="text-center text-lg">
-                      {item.current_episode}/{item.Show.episodes}
-                    </TableCell>
-                  ) : (
-                    <TableCell className="text-center text-lg">
-                      {item.current_episode}
-                    </TableCell>
-                  )}
-                </TableRow>
-              );
-            })}
+                    <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                      {item.Show.name}
+                    </h4>
+                  </div>
+                </TableCell>
+                <TableCell className="text-center text-lg">
+                  {item.current_season}
+                </TableCell>
+                <TableCell className="text-center text-lg">
+                  <div className="flex justify-center items-center gap-2 group relative">
+                    <div className="flex justify-center items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleIncrement(item.Show.show_id)}
+                        className="hidden group-hover:flex"
+                      >
+                        +
+                      </Button>
+                      {item.Show.episodes ? (
+                        <>
+                          {item.current_episode}/{item.Show.episodes}
+                        </>
+                      ) : (
+                        item.current_episode
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleIncrement(item.Show.show_id)}
+                        className="hidden group-hover:flex"
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </Card>
