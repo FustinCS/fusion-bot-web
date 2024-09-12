@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+'use client'
+
 import localFont from "next/font/local";
 import "/styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,11 +16,6 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "Fusion Bot",
-  description: "Website to display Fusion Bot Information",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +26,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SessionProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -37,6 +35,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

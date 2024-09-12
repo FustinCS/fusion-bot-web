@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Table,
@@ -9,23 +9,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  Card
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { useEffect, useState } from "react";
 import { Watch } from "@/utils/types";
 import useSWR from "swr";
+import { User } from "next-auth";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) =>
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((res) => res.json());
 
-export default function CurrentWatchingTable() {
-  const {data, error} = useSWR<Watch[]>('/api/database/get-watched-tv', fetcher);
+  
+export default function CurrentWatchingTable({ userInfo }: { userInfo: User }) {
+  const { data, error } = useSWR<Watch[]>(
+    `/api/database/get-watched-tv?user_id=${userInfo.id}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    }
+  );
 
   if (!data) return <p>Loading...</p>;
-  
+
   if (error) return <p>Error</p>;
 
   return (
@@ -47,7 +58,7 @@ export default function CurrentWatchingTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((item, index) =>{
+            {data.map((item, index) => {
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
@@ -72,7 +83,7 @@ export default function CurrentWatchingTable() {
                   </TableCell>
                   <TableCell className="text-center text-lg">TV</TableCell>
                 </TableRow>
-              )
+              );
             })}
           </TableBody>
         </Table>

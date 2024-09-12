@@ -1,14 +1,16 @@
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { User } from "next-auth";
 
-export default function TvProfileInformation() {
+export default function TvProfileInformation({ userInfo }: { userInfo: User }) {
+  
   return (
     <div className="flex gap-6 m-4 items-end">
       <div className="w-[64px] lg:w-[128px]">
         <AspectRatio ratio={1}>
           <Image
-            src="/unknown.png"
-            alt="Image"
+            src={userInfo.image || ""} 
+            alt={userInfo.name || "Unknown"}
             className="rounded-md object-center object-cover"
             fill
           />
