@@ -13,6 +13,8 @@ export default function TvProfileInformation({ userInfo }: { userInfo: User }) {
             alt={userInfo.name || "Unknown"}
             className="rounded-md object-center object-cover"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={true}
           />
         </AspectRatio>
       </div>

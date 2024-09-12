@@ -47,6 +47,7 @@ export default function CurrentWatchingTable({ data }: { data: Watch[] }) {
                             alt={item.Show.name || "Unknown"}
                             className="rounded-md object-center object-cover"
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         </AspectRatio>
                       </div>
