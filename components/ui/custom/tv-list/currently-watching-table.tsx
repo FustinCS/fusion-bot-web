@@ -14,46 +14,23 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Watch } from "@/utils/types";
-import useSWR from "swr";
-import { User } from "next-auth";
 
-const fetcher = (url: string) =>
-  fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((res) => res.json());
-
-  
-export default function CurrentWatchingTable({ userInfo }: { userInfo: User }) {
-  const { data, error } = useSWR<Watch[]>(
-    `/api/database/get-watched-tv?user_id=${userInfo.id}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-    }
-  );
-
-  if (!data) return <p>Loading...</p>;
-
-  if (error) return <p>Error</p>;
-
+export default function CurrentWatchingTable({ data }: { data: Watch[] }) {
   return (
     <>
       <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight mt-8 p-8">
         Current Watching
       </h2>
-      <Card className="border-secondary border-2">
+      <Card className="border-secondary border-2 mb-16">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="p-6 text-lg">Title</TableHead>
               <TableHead className="w-[200px] text-lg text-center">
-                Progress
+                Season
               </TableHead>
               <TableHead className="w-[200px] text-lg text-center">
-                Type
+                Progress
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -79,9 +56,17 @@ export default function CurrentWatchingTable({ userInfo }: { userInfo: User }) {
                     </div>
                   </TableCell>
                   <TableCell className="text-center text-lg">
-                    {item.current_episode}/{item.Show.episodes}
+                    {item.current_season}
                   </TableCell>
-                  <TableCell className="text-center text-lg">TV</TableCell>
+                  {item.Show.episodes ? (
+                    <TableCell className="text-center text-lg">
+                      {item.current_episode}/{item.Show.episodes}
+                    </TableCell>
+                  ) : (
+                    <TableCell className="text-center text-lg">
+                      {item.current_episode}
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}

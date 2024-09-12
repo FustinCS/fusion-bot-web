@@ -25,6 +25,9 @@ export async function GET(request: Request) {
           },
         },
       },
+      orderBy: {
+        date_updated: 'desc', // Sort by date_updated in descending order
+      },
     });
     return NextResponse.json(watching, { status: 200 });
   } catch (error) {

@@ -12,3 +12,11 @@ export interface Watch {
     date_updated: Date | null;
     current_season: number;
   }
+
+export interface TVShow {
+    show_id: number,
+    name: string,
+    image: string;
+    totalSeasons: number; 
+    seasons: any[];
+}
