@@ -1,42 +1,43 @@
-import { DefaultSession, Session } from "next-auth";
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import DiscordProvider from 'next-auth/providers/discord';
+import { JWT } from 'next-auth/jwt';
+import { DefaultSession, Session } from 'next-auth';
 
-declare module "next-auth" {
+// Extend the Session interface to include a user id
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-    } & DefaultSession["user"];
+    } & DefaultSession['user'];
   }
 }
-import { JWT } from "next-auth/jwt";
-import NextAuth from "next-auth/next";
-import DiscordProvider from "next-auth/providers/discord";
 
-export const AuthOptions = {
+// Define your authentication options
+const authOptions: NextAuthOptions = {
   providers: [
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-      authorization: "https://discord.com/oauth2/authorize?client_id=1102733971529408633&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback%2Fdiscord&scope=identify+email+connections",
+      authorization: process.env.DISCORD_OAUTH_URL as string,
     }),
   ],
   callbacks: {
-    async session({session, token}: {session: Session, token: JWT}) {
+    async session({ session, token }: { session: Session, token: JWT }) {
       if (token) {
-        if (token?.picture?.includes("discord")) {
-          if (typeof token.sub === 'string') {
-            session.user.id = token.sub;
-          }
+        if (token.picture?.includes("discord") && typeof token.sub === 'string') {
+          session.user.id = token.sub;
         }
       }
       return session;
     },
-    
     async redirect({ baseUrl }: { baseUrl: string }) {
       return baseUrl + "/list";
     },
   },
 };
 
-const handler = NextAuth(AuthOptions);
+// Create the NextAuth handler
+const handler = NextAuth(authOptions);
 
+// Export the handler for GET and POST methods
 export { handler as GET, handler as POST };
