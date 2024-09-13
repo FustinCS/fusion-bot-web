@@ -18,7 +18,7 @@ export default function TvProfileInformation({ userInfo }: { userInfo: User }) {
           />
         </AspectRatio>
       </div>
-      <h1 className="scroll-m-20 text-4xl font-extrabold lg:text-5xl pb-4">Fustin</h1>
+      <h1 className="scroll-m-20 text-4xl font-extrabold lg:text-5xl pb-4">{userInfo.name}</h1>
     </div>
   );
 }
