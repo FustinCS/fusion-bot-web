@@ -15,204 +15,246 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Watch } from "@/utils/types";
 import { Button } from "../../button";
+import { useState } from "react";
 
-export default function CurrentWatchingTable({
-  data,
-  setData,
-}: {
+interface CurrentlyWatchingTableProps {
   data: Watch[];
   setData: (newData: Watch[]) => void;
-}) {
+}
+
+export default function CurrentWatchingTable({ data, setData }:  CurrentlyWatchingTableProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+
   const handleIncrementEpisode = async (watchedShowInfo: Watch) => {
-    // if the show doesn't have a total ep count
-    if (
-      watchedShowInfo.Show.episodes !== null &&
-      watchedShowInfo.current_episode === watchedShowInfo.Show.episodes
-    ) {
-      return;
-    }
-
-    // database update
-    const response = await fetch(
-      "/api/database/update-watched-tv/increment-episode-tv",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ showData: watchedShowInfo }),
+    try {
+      setIsLoading(true);
+      // if the show doesn't have a total ep count
+      if (
+        watchedShowInfo.Show.episodes !== null &&
+        watchedShowInfo.current_episode === watchedShowInfo.Show.episodes
+      ) {
+        return;
       }
-    );
-
-    if (!response.ok) {
-      console.error("Failed to update episode count");
-      alert("Failed to update episode count (Internal Error)");
-      return;
-    }
-
-    const newData = data.map((item) => {
-      if (item.Show.show_id === watchedShowInfo.show_id) {
-        return {
-          ...item,
-          current_episode: item.current_episode + 1,
-        };
+  
+      // database update
+      const response = await fetch(
+        "/api/database/update-watched-tv/increment-episode-tv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ showData: watchedShowInfo }),
+        }
+      );
+  
+      if (!response.ok) {
+        console.error("Failed to update episode count");
+        alert("Failed to update episode count (Internal Error)");
+        return;
       }
-      return item;
-    });
-
-    setData(newData);
+  
+      const newData = data.map((item) => {
+        if (item.Show.show_id === watchedShowInfo.show_id) {
+          return {
+            ...item,
+            current_episode: item.current_episode + 1,
+          };
+        }
+        return item;
+      });
+  
+      setData(newData);
+    } catch (error) {
+      console.error("Failed to increment episode count", error);
+      alert("Failed to increment episode count (Internal Error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDecrementEpisode = async (watchedShowInfo: Watch) => {
-    // if the show doesn't have a total ep count
-    if (watchedShowInfo.current_episode === 0) {
-      return;
-    }
-
-    // database update
-    const response = await fetch(
-      "/api/database/update-watched-tv/decrement-episode-tv",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ showData: watchedShowInfo }),
+    try {
+      setIsLoading(true);
+      // if the show doesn't have a total ep count
+      if (watchedShowInfo.current_episode === 0) {
+        return;
       }
-    );
 
-    if (!response.ok) {
-      console.error("Failed to update episode count");
-      alert("Failed to update episode count (Internal Error)");
-      return;
-    }
+      // database update
+      const response = await fetch(
+        "/api/database/update-watched-tv/decrement-episode-tv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ showData: watchedShowInfo }),
+        }
+      );
 
-    // update data state for real time updates instead of needing to refresh the page
-    const newData = data.map((item) => {
-      if (item.Show.show_id === watchedShowInfo.show_id) {
-        return {
-          ...item,
-          current_episode: item.current_episode - 1,
-        };
+      if (!response.ok) {
+        console.error("Failed to update episode count");
+        alert("Failed to update episode count (Internal Error)");
+        return;
       }
-      return item;
-    });
 
-    setData(newData);
+      // update data state for real time updates instead of needing to refresh the page
+      const newData = data.map((item) => {
+        if (item.Show.show_id === watchedShowInfo.show_id) {
+          return {
+            ...item,
+            current_episode: item.current_episode - 1,
+          };
+        }
+        return item;
+      });
+
+      setData(newData);
+    } catch (error) {
+      console.error("Failed to decrement episode count", error);
+      alert("Failed to decrement episode count (Internal Error)");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleIncrementSeason = async (watchedShowInfo: Watch) => {
-    console.log(watchedShowInfo.current_season, watchedShowInfo.total_seasons);
-    if (watchedShowInfo.current_season === watchedShowInfo.total_seasons) {
-      return;
-    }
-
-    // update db
-    const response = await fetch(
-      "/api/database/update-watched-tv/increment-season-tv",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ showData: watchedShowInfo }),
+    try {
+      setIsLoading(true);
+      if (watchedShowInfo.current_season === watchedShowInfo.total_seasons) {
+        return;
       }
-    );
 
-    if (!response.ok) {
-      console.error("Failed to update season count");
-      alert("Failed to update season count (Internal Error)");
-      return;
-    }
-    
-    const result = await response.json();
-    const totalEpisodes = result.episodes; // Adjust based on your response structure
-
-    const newData = data.map((item) => {
-      if (item.Show.show_id === watchedShowInfo.show_id) {
-        return {
-          ...item,
-          Show: {
-            ...item.Show,
-            episodes: totalEpisodes,
+      // update db
+      const response = await fetch(
+        "/api/database/update-watched-tv/increment-season-tv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          current_episode: 0,
-          current_season: item.current_season + 1,
-        };
-      }
-      return item;
-    });
+          body: JSON.stringify({ showData: watchedShowInfo }),
+        }
+      );
 
-    setData(newData);
+      if (!response.ok) {
+        console.error("Failed to update season count");
+        alert("Failed to update season count (Internal Error)");
+        return;
+      }
+      
+      const result = await response.json();
+      const totalEpisodes = result.episodes; // Adjust based on your response structure
+
+      const newData = data.map((item) => {
+        if (item.Show.show_id === watchedShowInfo.show_id) {
+          return {
+            ...item,
+            Show: {
+              ...item.Show,
+              episodes: totalEpisodes,
+            },
+            current_episode: 0,
+            current_season: item.current_season + 1,
+          };
+        }
+        return item;
+      });
+
+      setData(newData);
+    } catch (error) {
+      console.error("Failed to increment season count", error);
+      alert("Failed to increment season count (Internal Error)");
+    } finally {
+      setIsLoading(false);
+    }
   
   }
 
   const handleDecrementSeason = async (watchedShowInfo: Watch) => {
-    if (watchedShowInfo.current_season === 1) {
-      return;
-    }
-
-    // update db
-    const response = await fetch(
-      "/api/database/update-watched-tv/decrement-season-tv",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ showData: watchedShowInfo }),
+    try {
+      setIsLoading(true);
+      if (watchedShowInfo.current_season === 1) {
+        return;
       }
-    );
 
-    if (!response.ok) {
-      console.error("Failed to update season count");
-      alert("Failed to update season count (Internal Error)");
-      return;
-    }
-      
-
-    const result = await response.json();
-    const totalEpisodes = result.episodes; // Adjust based on your response structure
-
-    const newData = data.map((item) => {
-      if (item.Show.show_id === watchedShowInfo.show_id) {
-        return {
-          ...item,
-          Show: {
-            ...item.Show,
-            episodes: totalEpisodes,
+      // update db
+      const response = await fetch(
+        "/api/database/update-watched-tv/decrement-season-tv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          current_episode: 0,
-          current_season: item.current_season - 1,
-        };
-      }
-      return item;
-    });
+          body: JSON.stringify({ showData: watchedShowInfo }),
+        }
+      );
 
-    setData(newData);
-  
+      if (!response.ok) {
+        console.error("Failed to update season count");
+        alert("Failed to update season count (Internal Error)");
+        return;
+      }
+        
+
+      const result = await response.json();
+      const totalEpisodes = result.episodes; // Adjust based on your response structure
+
+      const newData = data.map((item) => {
+        if (item.Show.show_id === watchedShowInfo.show_id) {
+          return {
+            ...item,
+            Show: {
+              ...item.Show,
+              episodes: totalEpisodes,
+            },
+            current_episode: 0,
+            current_season: item.current_season - 1,
+          };
+        }
+        return item;
+      });
+
+      setData(newData);
+    } catch (error) {
+      console.error("Failed to decrement season count", error);
+      alert("Failed to decrement season count (Internal Error)");
+    } finally {
+      setIsLoading(false);
+    }
+
   }
 
   const handleDelete = async (watchedShowInfo: Watch) => {
-    // database update
-    const response = await fetch(
-      "/api/database/remove-watched-tv",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ showData: watchedShowInfo }),
+    try {
+      setIsLoading(true);
+      // database update
+      const response = await fetch(
+        "/api/database/remove-watched-tv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ showData: watchedShowInfo }),
+        }
+      );
+  
+      if (!response.ok) {
+        console.error("Failed to delete show");
+        alert("Failed to delete show. (Internal Error)");
+        return;
       }
-    );
-
-    if (!response.ok) {
-      console.error("Failed to delete show");
+  
+      setData(data.filter((item) => item.Show.show_id !== watchedShowInfo.show_id));
+    } catch (error) {
+      console.error("Failed to delete show", error);
       alert("Failed to delete show. (Internal Error)");
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    setData(data.filter((item) => item.Show.show_id !== watchedShowInfo.show_id));
   }
 
   return (
@@ -252,7 +294,7 @@ export default function CurrentWatchingTable({
                     <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
                       {item.Show.name}
                     </h4>
-                    <Button onClick={() => handleDelete(item)} variant="ghost">
+                    <Button onClick={() => handleDelete(item)} disabled={isLoading} variant="ghost" className="disabled:cursor-not-allowed disabled:opacity-100">
                       Delete
                       </Button>
                   </div>
@@ -263,6 +305,7 @@ export default function CurrentWatchingTable({
                       <Button
                         variant="ghost"
                         onClick={() => handleDecrementSeason(item)}
+                        disabled={isLoading}
                         className="hidden group-hover:flex"
                       >
                         -
@@ -271,6 +314,7 @@ export default function CurrentWatchingTable({
                       <Button
                         variant="ghost"
                         onClick={() => handleIncrementSeason(item)}
+                        disabled={isLoading}
                         className="hidden group-hover:flex"
                       >
                         +
@@ -284,6 +328,7 @@ export default function CurrentWatchingTable({
                       <Button
                         variant="ghost"
                         onClick={() => handleDecrementEpisode(item)}
+                        disabled={isLoading}
                         className="hidden group-hover:flex"
                       >
                         -
@@ -298,6 +343,7 @@ export default function CurrentWatchingTable({
                       <Button
                         variant="ghost"
                         onClick={() => handleIncrementEpisode(item)}
+                        disabled={isLoading}
                         className="hidden group-hover:flex"
                       >
                         +
