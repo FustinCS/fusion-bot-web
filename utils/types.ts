@@ -11,6 +11,7 @@ export interface Watch {
     current_episode: number;
     date_updated: Date | null;
     current_season: number;
+    total_seasons: number;
   }
 
 export interface TVShow {
@@ -18,5 +19,5 @@ export interface TVShow {
     name: string,
     image: string;
     totalSeasons: number; 
-    seasons: any[];
+    seasons: {season: number, episodeCount: number}[];
 }

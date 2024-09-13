@@ -23,7 +23,7 @@ export default function CurrentWatchingTable({
   data: Watch[];
   setData: (newData: Watch[]) => void;
 }) {
-  const handleIncrement = async (watchedShowInfo: Watch) => {
+  const handleIncrementEpisode = async (watchedShowInfo: Watch) => {
     // if the show doesn't have a total ep count
     if (
       watchedShowInfo.Show.episodes !== null &&
@@ -63,7 +63,7 @@ export default function CurrentWatchingTable({
     setData(newData);
   };
 
-  const handleDecrement = async (watchedShowInfo: Watch) => {
+  const handleDecrementEpisode = async (watchedShowInfo: Watch) => {
     // if the show doesn't have a total ep count
     if (watchedShowInfo.current_episode === 0) {
       return;
@@ -100,6 +100,98 @@ export default function CurrentWatchingTable({
 
     setData(newData);
   };
+
+  const handleIncrementSeason = async (watchedShowInfo: Watch) => {
+    console.log(watchedShowInfo.current_season, watchedShowInfo.total_seasons);
+    if (watchedShowInfo.current_season === watchedShowInfo.total_seasons) {
+      return;
+    }
+
+    // update db
+    const response = await fetch(
+      "/api/database/update-watched-tv/increment-season-tv",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ showData: watchedShowInfo }),
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to update season count");
+      alert("Failed to update season count (Internal Error)");
+      return;
+    }
+    
+    const result = await response.json();
+    const totalEpisodes = result.episodes; // Adjust based on your response structure
+
+    const newData = data.map((item) => {
+      if (item.Show.show_id === watchedShowInfo.show_id) {
+        return {
+          ...item,
+          Show: {
+            ...item.Show,
+            episodes: totalEpisodes,
+          },
+          current_episode: 0,
+          current_season: item.current_season + 1,
+        };
+      }
+      return item;
+    });
+
+    setData(newData);
+  
+  }
+
+  const handleDecrementSeason = async (watchedShowInfo: Watch) => {
+    if (watchedShowInfo.current_season === 1) {
+      return;
+    }
+
+    // update db
+    const response = await fetch(
+      "/api/database/update-watched-tv/decrement-season-tv",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ showData: watchedShowInfo }),
+      }
+    );
+
+    if (!response.ok) {
+      console.error("Failed to update season count");
+      alert("Failed to update season count (Internal Error)");
+      return;
+    }
+      
+
+    const result = await response.json();
+    const totalEpisodes = result.episodes; // Adjust based on your response structure
+
+    const newData = data.map((item) => {
+      if (item.Show.show_id === watchedShowInfo.show_id) {
+        return {
+          ...item,
+          Show: {
+            ...item.Show,
+            episodes: totalEpisodes,
+          },
+          current_episode: 0,
+          current_season: item.current_season - 1,
+        };
+      }
+      return item;
+    });
+
+    setData(newData);
+  
+  }
 
   const handleDelete = async (watchedShowInfo: Watch) => {
     // database update
@@ -166,14 +258,32 @@ export default function CurrentWatchingTable({
                   </div>
                 </TableCell>
                 <TableCell className="text-center text-lg">
-                  {item.current_season}
+                  <div className="flex justify-center items-center gap-2 group relative">
+                    <div className="flex justify-center items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleDecrementSeason(item)}
+                        className="hidden group-hover:flex"
+                      >
+                        -
+                      </Button>
+                      {item.current_season}
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleIncrementSeason(item)}
+                        className="hidden group-hover:flex"
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
                 </TableCell>
                 <TableCell className="text-center text-lg">
                   <div className="flex justify-center items-center gap-2 group relative">
                     <div className="flex justify-center items-center gap-2">
                       <Button
                         variant="ghost"
-                        onClick={() => handleDecrement(item)}
+                        onClick={() => handleDecrementEpisode(item)}
                         className="hidden group-hover:flex"
                       >
                         -
@@ -187,7 +297,7 @@ export default function CurrentWatchingTable({
                       )}
                       <Button
                         variant="ghost"
-                        onClick={() => handleIncrement(item)}
+                        onClick={() => handleIncrementEpisode(item)}
                         className="hidden group-hover:flex"
                       >
                         +
