@@ -1,7 +1,6 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import fetchShowData from "@/utils/fetch-show-data";
-import { Watch } from "@/utils/types";
 
 export async function POST(request: Request) {
   try {
@@ -71,8 +70,8 @@ export async function POST(request: Request) {
         current_episode: 0,
         date_updated: new Date().toISOString(),
         current_season: 1,
+        total_seasons: showData.seasons.length,
     };
-
 
     return NextResponse.json({ 
         message: "Show added successfully", 
