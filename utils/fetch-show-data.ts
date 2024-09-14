@@ -1,4 +1,4 @@
-import { TVShow } from "./types";
+import { TVShow } from "../lib/types/types";
 
 export default async function fetchShowData(show_name: string): Promise<TVShow> {
     // Fetch show data
