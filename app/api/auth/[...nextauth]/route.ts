@@ -1,10 +1,12 @@
-import NextAuth from "next-auth";
+import NextAuth, { SessionStrategy } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import { prisma } from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-
+import { Adapter } from "next-auth/adapters";
 
 const authOptions = {
+  session: { strategy: "jwt" as SessionStrategy },
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID as string,
@@ -12,7 +14,6 @@ const authOptions = {
       authorization: process.env.DISCORD_OAUTH_URL as string,
     }),
   ],
-  adapter: PrismaAdapter(prisma),
 };
 
 const handler = NextAuth(authOptions);

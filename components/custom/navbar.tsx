@@ -5,12 +5,6 @@ import { Button } from "../ui/button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { DiscordLogoIcon } from "@radix-ui/react-icons";
-import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -23,9 +17,12 @@ export default function Navbar() {
         </h4>
       </div>
       <div className="flex items-center gap-4">
-        <Button className="rounded-full">
-          <Link href="/list">My List</Link>
-        </Button>
+        <Link href="/">
+          <Button className="rounded-full">Home</Button>
+        </Link>
+        <Link href="/list">
+          <Button className="rounded-full">My List</Button>
+        </Link>
         {session ? (
           <>
             <Button
@@ -35,15 +32,14 @@ export default function Navbar() {
               <DiscordLogoIcon />
               Sign Out
             </Button>
-            <div className="rounded-full border-2 border-primary">
-              <Image
-                src={session.user?.image || ""}
-                alt={session.user?.name || "Unknown User"}
-                width={45}
-                height={45}
-                className="rounded-full object-center object-cover"
-              />
-            </div>
+
+            <Image
+              src={session.user?.image || ""}
+              alt={session.user?.name || "Unknown User"}
+              width={50}
+              height={50}
+              className="rounded-full object-center object-cover border-2 border-primary"
+            />
           </>
         ) : (
           <Button
