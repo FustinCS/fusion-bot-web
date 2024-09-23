@@ -28,7 +28,7 @@ export default async function fetchShowData(showName: string): Promise<TVShow> {
     }
 
     const result: TVShow = {
-        show_id: showId,
+        showId: showId,
         name: name,
         image: image,
         totalSeasons: totalSeasons,

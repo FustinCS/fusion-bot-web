@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
 
 
     // Handle API Routes: Bot Token Verification
-    if (url.pathname.startsWith('/api/')) {
+    if (url.pathname.startsWith('/api/tvshows')) {
         const authheader = req.headers.get('Authorization');
 
         // Check if session is valid for API routes
@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
 
     // Handle Non-API Routes (e.g., /list): User Session Verification via NextAuth
     if (!token) {
-        const loginUrl = new URL('/auth/login', req.url);
+        const loginUrl = new URL('/api/auth/signin', req.url);
         return NextResponse.redirect(loginUrl);
     }
 
@@ -38,6 +38,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
     matcher: [
         '/list',          // User session verification for this page
-        '/api/:path*',    // Bot verification for API routes
+        '/api/tvshows',    // Bot verification for API routes
     ],
 };

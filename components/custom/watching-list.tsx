@@ -34,9 +34,9 @@ export default function WatchingList({ watchedShows } : WatchingListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {watchedShows.map((show, index) => {
+          {watchedShows.map((show) => {
             return (
-              <TableRow key={index}>
+              <TableRow key={show.updatedAt.toString()}>
                 <TableCell className="font-medium">
                   <div className="flex gap-6 m-4 items-center">
                     <div className="w-[48px] lg:w-[48px]">
@@ -55,10 +55,10 @@ export default function WatchingList({ watchedShows } : WatchingListProps) {
                     </h4>
                   </div>
                 </TableCell>
-                <TableCell className="text-center text-lg">{show.current_season}</TableCell>
+                <TableCell className="text-center text-lg">{show.currentSeason}</TableCell>
                 <TableCell className="text-center text-lg">
-                  {show.current_episode}
-                  {show.Show.episode_count != 0 ? `/${show.Show.episode_count}` : ""}
+                  {show.currentEpisode}
+                  {show.Show.episodeCount != 0 ? `/${show.Show.episodeCount}` : ""}
                 </TableCell>
               </TableRow>
             );

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import fetchShowData from "@/utils/fetchShowData";
 import { getProviderId } from "@/utils/fetchProviderId";
+import { TVShow } from "@/lib/types/types";
 
 // no need for verification because already done on middleware.ts
 const GET = async () => {
@@ -21,6 +21,7 @@ const GET = async () => {
       show_id: true,
       current_season: true,
       current_episode: true,
+      updated_at: true,
       Show: {
         select: {
           name: true,
@@ -30,9 +31,26 @@ const GET = async () => {
         },
       },
     },
+    orderBy: {
+      updated_at: 'desc', // Sort by updated_at in descending order
+    },
   });
 
-  return NextResponse.json({ watchedShows: watchedShows }, { status: 200 });
+  // Convert snake_case to camelCase
+  const camelCaseWatchedShows = watchedShows.map((show) => ({
+    showId: show.show_id,
+    currentSeason: show.current_season,
+    currentEpisode: show.current_episode,
+    updatedAt: show.updated_at,
+    Show: {
+      name: show.Show.name,
+      season: show.Show.season,
+      episodeCount: show.Show.episode_count,
+      image: show.Show.image,
+    },
+  }));
+
+  return NextResponse.json({ watchedShows: camelCaseWatchedShows }, { status: 200 });
 };
 
 const POST = async (req: NextRequest) => {
@@ -48,8 +66,7 @@ const POST = async (req: NextRequest) => {
     }
 
     const response = await req.json();
-    const showName = response.showName;
-    const showData = await fetchShowData(showName);
+    const showData = response.showData as TVShow;
 
     // create a transaction to insert data into tables
     await prisma.$transaction(async (tx) => {
@@ -58,12 +75,12 @@ const POST = async (req: NextRequest) => {
         await tx.show.upsert({
           where: {
             show_id_season: {
-              show_id: showData.show_id,
+              show_id: showData.showId,
               season: season.season,
             },
           },
           create: {
-            show_id: showData.show_id,
+            show_id: showData.showId,
             season: season.season,
             name: showData.name,
             image: showData.image,
@@ -81,7 +98,7 @@ const POST = async (req: NextRequest) => {
       await tx.watches.create({
         data: {
           provider_id: providerId,
-          show_id: showData.show_id,
+          show_id: showData.showId,
           current_season: 1,
           current_episode: 0,
         },
