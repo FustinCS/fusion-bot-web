@@ -13,21 +13,12 @@ import {
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Image from "next/image";
 import { WatchedTVShow } from "@/lib/types/types";
-import { useEffect, useState } from "react";
 
-export default function WatchingList() {
-  const [watchedShows, setWatchedShows] = useState<WatchedTVShow[]>([]);
+interface WatchingListProps {
+  watchedShows: WatchedTVShow[];
+}
 
-  useEffect(() => {
-    async function fetchWatchedShows() {
-      const response = await fetch("/api/tvshows", {method: "GET"});
-      const data = await response.json();
-      setWatchedShows(data.watchedShows);
-    }
-
-    fetchWatchedShows();
-  }, []);
-
+export default function WatchingList({ watchedShows } : WatchingListProps) {
   return (
     <Card className="w-full bg-card border-secondary">
       <Table>

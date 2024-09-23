@@ -1,8 +1,8 @@
 import { TVShow } from "../lib/types/types";
 
-export default async function fetchShowData(show_name: string): Promise<TVShow> {
+export default async function fetchShowData(showName: string): Promise<TVShow> {
     // Fetch show data
-    const showResponse = await fetch(`https://api.tvmaze.com/singlesearch/shows?q=${show_name}`);
+    const showResponse = await fetch(`https://api.tvmaze.com/singlesearch/shows?q=${showName}`);
     const showData = await showResponse.json();
 
     const showId = showData.id;
