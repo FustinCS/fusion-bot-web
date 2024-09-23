@@ -1,10 +1,11 @@
-import NextAuth, { SessionStrategy } from "next-auth";
+import NextAuth, { Session, SessionStrategy } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import { prisma } from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { Adapter } from "next-auth/adapters";
+import { JWT } from "next-auth/jwt";
 
-const authOptions = {
+export const authOptions = {
   session: { strategy: "jwt" as SessionStrategy },
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
@@ -14,6 +15,15 @@ const authOptions = {
       authorization: process.env.DISCORD_OAUTH_URL as string,
     }),
   ],
+  callbacks: {
+    session: ({ session, token }: {session: Session, token: JWT}) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.sub,
+      },
+    }),
+  },
 };
 
 const handler = NextAuth(authOptions);

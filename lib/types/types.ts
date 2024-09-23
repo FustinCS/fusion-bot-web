@@ -1,17 +1,13 @@
 export interface WatchedTVShow {
-    TVShow: {
-        showId: number;
-        name: string;
+    Show: {
+        name: string | null;
         season: number;
-        totalEpisodes: number;
-        totalSeasons: number;
-        image: string;
-        
-    }
-    userId: string;
-    currentEpisode: number;
-    dateUpdated: Date;
-    currentSeason: number;
+        episode_count: number | null;
+        image: string | null;
+    };
+    current_episode: number | null;
+    current_season: number;
+    show_id: number;
 }
 
 export interface TVShow {

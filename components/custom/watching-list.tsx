@@ -1,6 +1,6 @@
-import {
-  Card,
-} from "@/components/ui/card";
+"use client";
+
+import { Card } from "@/components/ui/card";
 
 import {
   Table,
@@ -12,8 +12,22 @@ import {
 } from "../ui/table";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Image from "next/image";
+import { WatchedTVShow } from "@/lib/types/types";
+import { useEffect, useState } from "react";
 
 export default function WatchingList() {
+  const [watchedShows, setWatchedShows] = useState<WatchedTVShow[]>([]);
+
+  useEffect(() => {
+    async function fetchWatchedShows() {
+      const response = await fetch("/api/tvshows", {method: "GET"});
+      const data = await response.json();
+      setWatchedShows(data.watchedShows);
+    }
+
+    fetchWatchedShows();
+  }, []);
+
   return (
     <Card className="w-full bg-card border-secondary">
       <Table>
@@ -29,34 +43,35 @@ export default function WatchingList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">
-              <div className="flex gap-6 m-4 items-center">
-                <div className="w-[48px] lg:w-[48px]">
-                  <AspectRatio ratio={1}>
-                    <Image
-                      src={
-                        "https://cdn.discordapp.com/avatars/251839702951264257/1b4ab9724e8b93037978eeb3c49d3ed1.png"
-                      }
-                      alt={"Unknown"}
-                      className="rounded-md object-center object-cover"
-                      width={50}
-                      height={50}
-                    />
-                  </AspectRatio>
-                </div>
-                <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                  Placeholder Show Name
-                </h4>
-              </div>
-            </TableCell>
-            <TableCell className="text-center text-lg">
-                1
-            </TableCell>
-            <TableCell className="text-center text-lg">
-                0/12
-            </TableCell>
-          </TableRow>
+          {watchedShows.map((show, index) => {
+            return (
+              <TableRow key={index}>
+                <TableCell className="font-medium">
+                  <div className="flex gap-6 m-4 items-center">
+                    <div className="w-[48px] lg:w-[48px]">
+                      <AspectRatio ratio={1}>
+                        <Image
+                          src={show.Show.image || ""}
+                          alt={show.Show.name || "Unknown"}
+                          className="rounded-md object-center object-cover"
+                          width={50}
+                          height={50}
+                        />
+                      </AspectRatio>
+                    </div>
+                    <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
+                      {show.Show.name || "Unknown"}
+                    </h4>
+                  </div>
+                </TableCell>
+                <TableCell className="text-center text-lg">{show.current_season}</TableCell>
+                <TableCell className="text-center text-lg">
+                  {show.current_episode}
+                  {show.Show.episode_count != 0 ? `/${show.Show.episode_count}` : ""}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </Card>
