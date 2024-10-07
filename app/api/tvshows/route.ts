@@ -115,4 +115,39 @@ const POST = async (req: NextRequest) => {
   }
 };
 
-export { GET, POST };
+const DELETE = async (req: NextRequest) => {
+  // fetch provider Id
+  try {
+    const providerId = await getProviderId();
+
+    if (!providerId) {
+      return NextResponse.json(
+        { message: "No account found" },
+        { status: 404 }
+      );
+    }
+
+    const response = await req.json();
+    const showId = response.showId as number;
+
+    // delete show from watched shows table
+    await prisma.watches.deleteMany({
+      where: {
+        provider_id: providerId,
+        show_id: showId,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Show deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "Error deleting show" }, { status: 500 });
+  }
+
+}
+
+
+export { GET, POST, DELETE };

@@ -94,7 +94,7 @@ export default function ListPage() {
                 Currently Watching
               </AccordionTrigger>
               <AccordionContent>
-                <WatchingList watchedShows={watchedShows} />
+                <WatchingList watchedShows={watchedShows} setWatchedShows={setWatchedShows}/>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

@@ -13,12 +13,31 @@ import {
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Image from "next/image";
 import { WatchedTVShow } from "@/lib/types/types";
+import { Button } from "../ui/button";
 
 interface WatchingListProps {
   watchedShows: WatchedTVShow[];
+  setWatchedShows: React.Dispatch<React.SetStateAction<WatchedTVShow[]>>;
 }
 
-export default function WatchingList({ watchedShows } : WatchingListProps) {
+export default function WatchingList({ watchedShows, setWatchedShows } : WatchingListProps) {
+
+  async function handleDeleteShow(showId: number) {
+    // update state
+    setWatchedShows((prev) => prev.filter((show) => show.showId !== showId));
+
+    // update db
+    await fetch("/api/tvshows", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        showId: showId,
+      }),
+    });
+  }
+
   return (
     <Card className="w-full bg-card border-secondary">
       <Table>
@@ -53,6 +72,7 @@ export default function WatchingList({ watchedShows } : WatchingListProps) {
                     <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
                       {show.Show.name || "Unknown"}
                     </h4>
+                    <Button onClick={() => handleDeleteShow(show.showId)}>Delete</Button>
                   </div>
                 </TableCell>
                 <TableCell className="text-center text-lg">{show.currentSeason}</TableCell>
